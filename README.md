@@ -1,5 +1,7 @@
 <h1 align="center" id="title">Pi Pico Plant Monitoring System</h1>
 
+<p align="center"><img src="https://socialify.git.ci/roshanrajadhikari/pi-pico-plant-monitoring-system/image?description=1&amp;font=Inter&amp;forks=1&amp;issues=1&amp;language=1&amp;name=1&amp;owner=1&amp;pattern=Circuit%20Board&amp;pulls=1&amp;stargazers=1&amp;theme=Dark" alt="project-image"></p>
+
 <p id="description">Micropython powred Pi Pico for plant monitoring using MQTT communication.</p>
 
   
