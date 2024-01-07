@@ -36,10 +36,12 @@ Extension ID: paulober.pico-w-go
 <p>4.Clone This Repo</p>
 
 <p>5.Change client id for Broker class </p>
+
 ```
 Find the mqtt_client_id variable in Broker and change it to your desire
 ```
 <p>6.Fill Wifi details and mqtt server details in secrets.py file </p>
+
 ```
 This file holds essential strings necessary for establishing a connection with an MQTT Broker
 ```
