@@ -8,13 +8,9 @@ class Sensor:
         self.min = min
         self.max = max
         self.sensor = ADC(pin) #setting sensor ADC pin
+        self.topic = 'sensor/sensor' + str(pin)
     
-    # A handy function for mapping values
-    def __map_range(self,x, in_min_val, in_max_val, out_min, out_max):
-        mapped = (x - in_min_val) * (out_max - out_min) / (in_max_val - in_min_val) + out_min
-        return int(max(min(mapped, out_max), out_min))
-
+        
     def readData(self):
-        raw_data_reading = self.sensor.read_u16() #reading the raw value from sensor
-        filtered_data = self.__map_range(raw_data_reading, self.min, self.max, 0, 100) #mapping value between 0 and 100
-        return filtered_data #return human readable percentage data
+        return self.sensor.read_u16() #raw data is returned after reading the raw value from the sensorwhich is mapped and filtered using broker 
+

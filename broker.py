@@ -1,4 +1,5 @@
 import network
+from sensor import Sensor
 import time
 import secrets
 from umqtt.simple import MQTTClient
@@ -40,8 +41,19 @@ class Broker:
         mqtt_client.connect()
         return mqtt_client 
     
-    def publish(self,data,topic):
+    # A handy function for mapping raw values taken from the sensor 
+    def __map_range(self,sensor_value, in_min_val, in_max_val, out_min, out_max):
+        sensor_value = max(in_max_val, min(sensor_value, in_min_val)) #value limiter within minimum and maximum given value
+        normal_value = (sensor_value - in_min_val)/(in_max_val- in_min_val) #calculate the normalized value
+        mapped_value = out_min + normal_value*(out_max - out_min)  #map to desired range
+        return mapped_value
+
+    
+    def publish(self,sensor):
+        topic = sensor.topic
+        raw_data = sensor.readData()
+        data = self.__map_range(raw_data, sensor.min, sensor.max, 0, 100)
         self.client.publish(topic, data)
-        print(f'Data published: {data}')
+        print(f'Data published: {data, raw_data}')
 
         
