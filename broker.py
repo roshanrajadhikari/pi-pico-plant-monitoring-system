@@ -1,11 +1,11 @@
 import network
-from sensor import Sensor
-import time
+# from sensor import Sensor
+import utime
 import secrets
 from umqtt.simple import MQTTClient
 
 class Broker:
-    def __init__(self):
+    def __init__(self,sensors):
 
         #wireless network details
         self.wifi_ssid = secrets.WIFI_SSID
@@ -17,19 +17,26 @@ class Broker:
         self.mqtt_username = secrets.MQTT_USERNAME  # username
         self.mqtt_password = secrets.MQTT_PASSWORD  # pass
         
+        self.sensors = sensors
+        
         self.__initNet()
         self.client = self.__initClient()
         
     
     def __initNet(self):
-        #Establish wireless connection to wifi
         wlan = network.WLAN(network.STA_IF)
         wlan.active(True)
-        wlan.connect(self.wifi_ssid, self.wifi_password)
-        while wlan.isconnected() == False:
-            print('Waiting for connection...')
-            time.sleep(1)
-        print("Connected to WiFi")
+        try:
+            #Establish wireless connection to wifi
+            wlan.connect(self.wifi_ssid, self.wifi_password)
+            while not wlan.isconnected():
+                print('Waiting for connection...')
+                print(f"Connection status: {wlan.ifconfig()}")
+                utime.sleep(1)
+            print("Connected to WiFi")
+        except Exception as e:
+            print(f"Error: {e}")
+
     
     def __initClient(self):
         # Initialize our MQTTClient and connect to the MQTT server
@@ -48,12 +55,29 @@ class Broker:
         mapped_value = out_min + normal_value*(out_max - out_min)  #map to desired range
         return mapped_value
 
+    #function to handle data reading from the sensor
+    def sense(self,sensor):
+            raw_data = sensor.readData()
+            data = int(self.__map_range(raw_data, sensor.min, sensor.max, 0, 100))
+            return data
     
-    def publish(self,sensor):
-        topic = sensor.topic
-        raw_data = sensor.readData()
-        data = self.__map_range(raw_data, sensor.min, sensor.max, 0, 100)
-        self.client.publish(topic, data)
-        print(f'Data published: {data, raw_data}')
-
+    # Function that publishes sensor data
+    def publish(self, sensor=None):
+        if sensor is None:
+            # Publish all sensors
+            for sensor in self.sensors:
+                topic = sensor.topic
+                self.client.publish(topic, str(self.sense(sensor)))
+                utime.sleep(0.5)  # Delay reading
+        else:
+            # Publish data from a specific sensor
+            topic = sensor.topic
+            self.client.publish(topic, str(self.sense(sensor)))
+    
+    # for all the sensors read the values and return array    
+    def getSensors(self):
+        values = []
+        for sensor in self.sensors:
+            values.append(self.sense(sensor))
+        return values
         
