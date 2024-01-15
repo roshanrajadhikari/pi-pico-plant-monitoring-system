@@ -5,7 +5,12 @@ menu_list = [
     {
         "option": "More Settings",
         "submenu": [
-            {"option": "Calibrate Sensor", "function": "calibrate_sensor"},
+            {"option": "Calibrate Sensor", 
+             "submenu": [
+                {"option": "Start Calibration", "function": "start_calibration"},
+                {"option": "Go Back", "function": "exit_menu"}
+                ]
+            },
             {"option": "Configure Settings", "function": "configure_settings"},
             {"option": "Go Back", "function": "exit_menu"},
         ],

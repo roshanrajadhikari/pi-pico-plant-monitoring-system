@@ -20,10 +20,20 @@ def core1_task():
 _thread.start_new_thread(core1_task, ())  #start background thread
 
 
-#main core
-menu.start()
-print("Systema halted. Shutting down")
-keep_alive = False
+
+
+try:
+    #main core
+    menu.start()
+except BaseException as e: #if there was bad exit
+    #Bad exit: anything that will cause interruption and exit program without user's "exit" input
+    print(e)
+    pass
+
+print("System halted. Shutting down")
+keep_alive = False #safely flag down
+    
+    
 
 
 

@@ -5,8 +5,7 @@ class Menu:
     def __init__(self,broker):
         self.is_running = False #main flag
         self.broker = broker
-        self.menu_list = menu_list
-        self.current_menu = menu_list
+        self.menu_stack = [menu_list]
 
     def display(self,menu_options):
         self.__cls()
@@ -33,34 +32,40 @@ class Menu:
 
     #handle users choice
     def make_choice(self, choice):
+        current_menu = self.menu_stack[-1] #get the latest element in array aka current menu
         #exception handle
         try:
-            index = int(choice) - 1
-            selected_menu = self.current_menu[index]
-            # Check if selected item has submenu
-            if "submenu" in selected_menu:
-                self.current_menu = selected_menu["submenu"]
-            #or else it should be a function
+            index = int(choice) - 1 #convert choice to index 
+            
+            if index < 0 or index > (len(current_menu) - 1): #out of menu array
+                print("No choice available")
+                utime.sleep(0.5) #wait a bit
             else:
-                self.__function(selected_menu["function"]) #handle function
-        except ValueError:
+                selected_menu = current_menu[index]
+                # Check if selected item has submenu
+                if "submenu" in selected_menu:
+                    self.menu_stack.append(selected_menu['submenu']) #add selected menu to menu stack
+                #or else it should be a function
+                else:
+                    self.__function(selected_menu["function"]) #handle function
+        except ValueError as e:
             pass
 
     def start(self):
         self.is_running = True  # set the flag to running
         while self.is_running:
-            self.display(self.current_menu)
+            self.display(self.menu_stack[-1])
             # Check if there's any user input available
             choice = input(f">:") #wait for user choice
-            self.make_choice(choice)
+            self.make_choice(choice) 
 
     def exit_menu(self):
-        # If in a submenu, go back; otherwise, exit the main loop
-        if self.current_menu is not self.menu_list:
-            self.current_menu = self.menu_list
+        #if user is in home menu
+        if len(self.menu_stack) == 1:
+            self.is_running = False #exit out of main loop: exit
         else:
-            self.is_running = False #stop running
-    
+            self.menu_stack.pop() #go back
+             
     #function that displays sensors in list and the values
     def view_sensors(self):
         stop = False #flag to stop the loop
