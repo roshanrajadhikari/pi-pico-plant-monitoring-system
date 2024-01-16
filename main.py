@@ -3,9 +3,11 @@ import _thread
 from broker import Broker
 from sensor import Sensor
 from menu.menu import Menu #import the Menu class
+from sensorlist import sensor_list
 
+# Create a list of Sensor instances using a list comprehension
+sensors = [Sensor(sensor["pin"], sensor["min_in"], sensor["max_in"], sensor["name"]) for sensor in sensor_list]
 
-sensors = [Sensor(28,50000,23000),Sensor(27,50000,23000)] #sensor instance params: ADC pin, value when no moisture, value when max moisture
 broker = Broker(sensors) # service broker instance
 menu = Menu(broker)
 keep_alive = True
@@ -18,9 +20,6 @@ def core1_task():
         utime.sleep(2) #wait a second
 
 _thread.start_new_thread(core1_task, ())  #start background thread
-
-
-
 
 try:
     #main core

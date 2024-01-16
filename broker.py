@@ -31,7 +31,6 @@ class Broker:
             wlan.connect(self.wifi_ssid, self.wifi_password)
             while not wlan.isconnected():
                 print('Waiting for connection...')
-                print(f"Connection status: {wlan.ifconfig()}")
                 utime.sleep(1)
             print("Connected to WiFi")
         except Exception as e:
@@ -76,8 +75,12 @@ class Broker:
     
     # for all the sensors read the values and return array    
     def getSensors(self):
-        values = []
+        data = []
         for sensor in self.sensors:
-            values.append(self.sense(sensor))
-        return values
+            try:
+                data.append({"name":sensor.name,"value":self.sense(sensor)})
+            except Exception as e:
+                print(f"Error reading sensor {sensor}: {e}")
+                # Handle the error, possibly by appending a default value or skipping the sensor
+        return data
         
