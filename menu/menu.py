@@ -2,7 +2,7 @@ import utime
 from menu.menulist import menu_list
 from machine import Pin
 
-# Set the GPIO pin you've connected to as an input
+# Set the GPIO pin  for button input
 touch_pin = Pin(14, Pin.IN, Pin.PULL_DOWN)
 
 class Menu:
