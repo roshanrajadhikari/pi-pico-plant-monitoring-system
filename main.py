@@ -1,14 +1,17 @@
+from machine import Pin
 import utime
 import _thread
+import uasyncio as asyncio
+from aswitch import Pushbutton
 from broker import Broker
-from sensor import Sensor
 from menu.menu import Menu #import the Menu class
-from sensorlist import sensor_list
-
-from machine import Pin
+from sensor.sensor import Sensor
+from sensor.sensorlist import sensor_list
 
 # Set the GPIO pin  for button input
-touch_pin = Pin(14, Pin.IN, Pin.PULL_DOWN)
+button = Pin(14,Pin.IN,Pin.PULL_DOWN)
+
+pb = Pushbutton(button,suppress=True)
 
 # Create a list of Sensor instances using a list comprehension
 sensors = [Sensor(sensor["pin"], sensor["min_in"], sensor["max_in"], sensor["name"]) for sensor in sensor_list]
@@ -17,39 +20,65 @@ broker = Broker(sensors) # service broker instance
 menu = Menu(broker)
 keep_alive = True
 
+bg_task_active = False
+
 #2nd core background task
 def background_task():
-    #run background thread for UI and user interaction with the system
-    menu.start()
+    global bg_task_active, keep_alive
+    bg_task_active = True
     
+    pb.long_func(menu.handle_button_press,("long",))
+
+    pb.release_func(menu.handle_button_press,("single",))
+    
+    try:
+        loop = asyncio.get_event_loop()
+        print("starting menu")
+        loop.run_until_complete(menu.start())
+    except BaseException as e:
+        print(f"Error in background_task: {e}")
+        # Handle specific exceptions if needed
+    finally:
+        bg_task_active = False
+        #keep_alive = False
+        menu.is_running = False
+        print("menu off")
+       
 def start_bg_task():
     _thread.start_new_thread(background_task, ())  #start background thread
+
+def core():     
+    global keep_alive, menu
     
-try:
-    #main core
-    while keep_alive:
-        #when menu is not running and user has pressed the button 
-        #start the menu in background thread
-        if(not menu.is_running and touch_pin.value()):
-            #start the menu
-            start_bg_task()
+    try:
+        while keep_alive:
             
-        broker.publish() #publish data to mqtt
-        utime.sleep(2) #wait a second
-except BaseException as e: #if there was bad exit
-    #Bad exit: anything that will cause interruption and exit program without user's "exit" input
-    print(e)
-    pass
+            broker.publish() # publish data to mqtt
+            utime.sleep_ms(2000)  # wait 2 seconds
+    except BaseException as e:
+        print(f"Error in core0: {e}")
+        # Handle specific exceptions if needed
+    finally:
+        keep_alive = False
+        menu.is_running = False
+        print("program was closed")
 
-
-#this runs when main core is failed
-print("System halted. Shutting down")
-keep_alive = False #stop the main core loop
-menu.is_running = False #safely exit the menu
-   
+def button_handler(irq):
+    global bg_task_active, keep_alive
+    try:
+        if not bg_task_active and keep_alive :
+            start_bg_task()
+    except BaseException as e:
+        print(f"Error in button_handler: {e}")
+        
+try:
+    button.irq(trigger=Pin.IRQ_RISING, handler=button_handler ) #set button interrupt handler
+    print("core")
+    core() # Start the core function using asyncio.run
+except BaseException as e:
+    print(f"Error in main program: {e}")
     
-
-
-
-
-
+finally:
+    keep_alive = False
+    menu.is_running = False
+    pass

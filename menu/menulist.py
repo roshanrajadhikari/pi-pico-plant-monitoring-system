@@ -1,9 +1,8 @@
 # menulist.py
-
 menu_list = [
     {"option": "View Sensors", "function": "view_sensors"},
     {
-        "option": "More Settings",
+        "option": "More Settings Here",
         "submenu": [
             {"option": "Calibrate Sensor", 
              "submenu": [
@@ -17,3 +16,4 @@ menu_list = [
     },
     {"option": "Exit", "function": "exit_menu"},
 ]
+

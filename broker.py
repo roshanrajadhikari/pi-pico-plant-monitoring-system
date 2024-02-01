@@ -1,6 +1,5 @@
-import network
-# from sensor import Sensor
 import utime
+import network
 import secrets
 from umqtt.simple import MQTTClient
 
@@ -79,6 +78,7 @@ class Broker:
         for sensor in self.sensors:
             try:
                 data.append({"name":sensor.name,"value":self.sense(sensor)})
+                #data.append({"name":"test","value":"12"})
             except Exception as e:
                 print(f"Error reading sensor {sensor}: {e}")
                 # Handle the error, possibly by appending a default value or skipping the sensor
