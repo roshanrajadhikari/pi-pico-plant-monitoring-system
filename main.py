@@ -3,16 +3,20 @@ import utime
 import _thread
 import uasyncio as asyncio
 from aswitch import Pushbutton
+from util.filesys import FileIO
 from broker import Broker
 from menu.menu import Menu #import the Menu class
 from sensor.sensor import Sensor
-from sensor.sensorlist import sensor_list
+#from sensor.sensorlist import sensor_list
+
+fileio = FileIO() # FileIO instance
 
 # Set the GPIO pin  for button input
 button = Pin(14,Pin.IN,Pin.PULL_DOWN)
 
 pb = Pushbutton(button,suppress=True)
 
+sensor_list = fileio.read("data/sensorlist.dat")  # Read the sensor list from file
 # Create a list of Sensor instances using a list comprehension
 sensors = [Sensor(sensor["pin"], sensor["min_in"], sensor["max_in"], sensor["name"]) for sensor in sensor_list]
 

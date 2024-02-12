@@ -55,7 +55,6 @@ class Screen:
             #print the title
             self.oled.rect(0,0,width,line_height,1)
             self.oled.text(f"{title}", 0, line * line_height, 1) 
-            
             line += 1 #increment line
             
             if highlight > (total_lines - 1): #if highlight is greater than 5 (total lines - 1 ; -title)
@@ -64,7 +63,6 @@ class Screen:
                 shift = 0   #else set shift to 0
             
             short_list = menu[shift:shift + (total_lines-1)] #get the menu items to be displayed
-
             line_height = 11 #set line height to 11
             
             #loop through the menu items
@@ -83,13 +81,9 @@ class Screen:
                     if item_length > 14:
                         text += " " #add space after text -> adds gap 
                         display_text = text[pointer:] + text[:pointer] #
-                        pointer = (pointer + 1) % (item_length)  # Reset pointer if it reaches the end
-            
-                        
+                        pointer = (pointer + 1) % (item_length)  # Reset pointer if it reaches the end   
                 #display line 
                 self.oled.text(f"{display_text or text}", 0, line * line_height, text_color)
-            
-
                 line += 1
             self.oled.show()
             
