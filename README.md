@@ -8,6 +8,8 @@
 
 An automated, multi-threaded IoT telemetry system designed to monitor and report soil moisture, temperature, and environmental conditions in real time using edge hardware.
 
+<p align="center"><img src="https://raw.githubusercontent.com/roshanrajadhikari/pi-pico-plant-monitoring-system/refs/heads/main/demo%20image.jpeg" alt="project-image2"></p>
+
 ## 🚀 Key Features
 * **Asynchronous Telemetry:** Built with multi-threaded script logic to handle simultaneous sensor scanning and network communication without blocking execution.
 * **Lightweight Transport:** Utilizes the MQTT protocol to stream lightweight JSON payloads to a centralized broker.
